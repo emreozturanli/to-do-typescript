@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from 'react'
+import { ChangeEvent, FC, useEffect, useState } from 'react'
 import ToDos from '../ToDos/ToDos'
 import StyledMain, { StyledInputContainer } from './Main.styled'
 
@@ -7,39 +7,59 @@ export interface ITodo {
   isDone: boolean
 }
 
+const getTodos = (): ITodo | any => {
+  const toDoList = localStorage.getItem('todolist')
+  if (toDoList) {
+    return JSON.parse(toDoList)
+  }
+  else {
+    return []
+  }
+}
+
 const Main: FC = () => {
 
   const [todo, setTodo] = useState({
     text: '',
     isDone: false
   })
-  const [todos, setTodos] = useState<ITodo[]>([])
+  const [todos, setTodos] = useState<ITodo[]>(getTodos())
 
-  const handleChange = (e:ChangeEvent<HTMLInputElement>) : void =>{
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setTodo({
       ...todo,
-      [e.target.name] : e.target.value
+      [e.target.name]: e.target.value
     })
   }
 
   const addTodo = (): void => {
-    if(todo.text !== ''){
+    if (todos.find(e => e.text.toLowerCase() === todo.text.toLowerCase())) {
+      setTodo({
+        ...todo,
+        text: 'already exists'
+      })
+    }
+    else if (todo.text !== '') {
       setTodos([...todos, todo])
       setTodo({
         text: '',
         isDone: false
       })
     }
-    else{
+    else {
       setTodo({
         ...todo,
-        text:'please type something'
+        text: 'please type something'
       })
     }
   }
-  const removeTodo = (text:string):void  =>{
-    setTodos(todos.filter(e=> e.text !== text))
+  const removeTodo = (text: string): void => {
+    setTodos(todos.filter(e => e.text !== text))
   }
+
+  useEffect(() => {
+    localStorage.setItem('todolist', JSON.stringify(todos))
+  }, [todos])
 
   return (
     <StyledMain>
@@ -51,7 +71,7 @@ const Main: FC = () => {
           onChange={handleChange} />
         <button onClick={addTodo}>Add</button>
       </StyledInputContainer>
-      <ToDos  todos ={todos} removeTodo={removeTodo}/>
+      <ToDos todos={todos} removeTodo={removeTodo} />
     </StyledMain>
   )
 }

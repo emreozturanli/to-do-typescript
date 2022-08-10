@@ -8,6 +8,10 @@ const StyledLI = styled.li`
     p{
         font-size:1.3rem;
         text-transform:capitalize;
+        color: #ffffff;
+        max-width: 80%;
+        overflow:hidden;
+        text-overflow:ellipsis;
         ::first-letter{
             font-weight: 600;
         }
